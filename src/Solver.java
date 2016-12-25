@@ -61,6 +61,25 @@ public class Solver
                 
                 twinSearchNode = twinPq.delMin();
             }
+            
+            // clear memory
+            GameTreeNode current = searchNode.previous;
+            while (current != null)
+            {
+                searchNode = null;
+                searchNode = current;
+                current = current.previous;
+            }
+            searchNode = null;
+            
+            current = twinSearchNode.previous;
+            while (current != null)
+            {
+                twinSearchNode = null;
+                twinSearchNode = current;
+                current = current.previous;
+            }
+            twinSearchNode = null;
         }
     }
     
@@ -93,7 +112,7 @@ public class Solver
         
         public int priority()
         {
-            return this.board.manhattan() + this.moves;
+            return this.board.hamming() + this.moves;
         }
         
         public int compareTo(GameTreeNode that)

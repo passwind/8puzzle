@@ -34,15 +34,15 @@ public class Board
         this.blocks = b;
     }
     
-    private void makeBoardByMoveBlank(int[][] blocks, int blankRow, int blankCol,
+    private void makeBoardByMoveBlank(int[][] tiles, int bRow, int bCol,
             int row, int col)
     {
-        blocks[blankRow][blankCol] = blocks[row][col];
-        blocks[row][col] = 0;
-        Board b = new Board(blocks);
+        tiles[bRow][bCol] = tiles[row][col];
+        tiles[row][col] = 0;
+        Board b = new Board(tiles);
         this.neighbors.push(b);
-        blocks[row][col] = blocks[blankRow][blankCol];
-        blocks[blankRow][blankCol] = 0;
+        tiles[row][col] = tiles[bRow][bCol];
+        tiles[bRow][bCol] = 0;
     }
 
     // board dimension n
@@ -55,12 +55,12 @@ public class Board
     public int hamming()      
     {
         int total = 0;
-        int n = this.dimension();
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
+        int m = this.dimension();
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < m; j++)
             {
-                if (i == n-1 && j == n-1) continue;
-                if (i*n+j+1 != this.blocks[i][j]) total++;
+                if (i == m-1 && j == m-1) continue;
+                if (i*m+j+1 != this.blocks[i][j]) total++;
             }
         
         return total;
@@ -69,8 +69,6 @@ public class Board
     // sum of Manhattan distances between blocks and goal
     public int manhattan()
     {
-        int n = this.dimension();
-        
         int total = 0;
         
         for (int i = 0; i < n; i++)
@@ -78,7 +76,7 @@ public class Board
             {
                 if (this.blocks[i][j] == 0) continue;
                 int row = (this.blocks[i][j]-1)/n;
-                int col = (this.blocks[i][j]-1)%n;
+                int col = (this.blocks[i][j]-1) % n;
                 int rowOffset = i-row;
                 if (rowOffset < 0) rowOffset = -rowOffset;
                 int colOffset = j-col;
@@ -102,9 +100,9 @@ public class Board
             for (int j = 0; j < n; j++)
                 b[i][j] = this.blocks[i][j];
         
-        int idx = StdRandom.uniform(1,n+1);
+        int idx = StdRandom.uniform(1, n+1);
         int row = (idx-1)/n;
-        int col = (idx-1)%n;
+        int col = (idx-1) % n;
         
         if (b[row][col] == 0)
         {
@@ -159,7 +157,7 @@ public class Board
         if (that.n != this.n) return false;
         
         for (int i = 0; i < n; i++)
-            for (int j=0; j < n; j++)
+            for (int j = 0; j < n; j++)
                 if (that.blocks[i][j] != this.blocks[i][j]) return false;
         
         return true;
@@ -171,7 +169,7 @@ public class Board
         if (this.neighbors == null)
         {
             this.neighbors = new Stack<Board>();
-            //up
+            // up
             int row = blankRow-1;
             int col = blankCol;
             if (row >= 0)
@@ -179,7 +177,7 @@ public class Board
                 makeBoardByMoveBlank(blocks, blankRow, blankCol, row, col);
             }
             
-            //down
+            // down
             row = blankRow+1;
             col = blankCol;
             if (row < n)
@@ -187,7 +185,7 @@ public class Board
                 makeBoardByMoveBlank(blocks, blankRow, blankCol, row, col);
             }
             
-            //left
+            // left
             row = blankRow;
             col = blankCol-1;
             if (col >= 0)
@@ -195,7 +193,7 @@ public class Board
                 makeBoardByMoveBlank(blocks, blankRow, blankCol, row, col);
             }
             
-            //right
+            // right
             row = blankRow;
             col = blankCol+1;
             if (col < n)
@@ -263,7 +261,7 @@ public class Board
         StdOut.println("block1.twin is \n " + b4.toString());
         
         StdOut.println("block1.neighbors are \n ");
-        for(Board b : b1.neighbors())
+        for (Board b : b1.neighbors())
         {
             StdOut.println(b.toString());
         }

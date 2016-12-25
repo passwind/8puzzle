@@ -1,77 +1,94 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
-import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
 
 public class Solver
 {
-    private Queue<Board> solution;
-
-    private boolean solvable = false;
+    private Stack<Board> solution = null;
     
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial)
     {
-        Queue<Board> twinSolution = findBestPath(initial.twin());
-        if (twinSolution == null)
+        if (initial.isGoal())
         {
-            solution = findBestPath(initial);
-            if (solution != null) solvable = true; 
+            solution = new Stack<Board>();
+            solution.push(initial);
+        }
+        else
+        {
+            solution = null;
+            
+            MinPQ<GameTreeNode> pq = new MinPQ<GameTreeNode>();
+            MinPQ<GameTreeNode> twinPq = new MinPQ<GameTreeNode>();
+            
+            GameTreeNode searchNode = new GameTreeNode(null, initial);
+            GameTreeNode twinSearchNode = new GameTreeNode(null, initial.twin());
+            
+            while (true)
+            {
+                if (searchNode.board.isGoal())
+                {
+                    solution = makeSolutionBySearchNode(searchNode);
+                    break;
+                }
+                
+                GameTreeNode psn = searchNode.previous;
+                
+                for (Board b : searchNode.board.neighbors())
+                {
+                    if (psn != null && psn.board.equals(b)) continue;
+                    pq.insert(new GameTreeNode(searchNode, b));
+                }
+                
+                searchNode = pq.delMin();
+                
+                // check twin 
+                
+                if (twinSearchNode.board.isGoal())
+                {
+                    break;
+                }
+                
+                GameTreeNode tpsn = twinSearchNode.previous;
+                
+                for (Board b : twinSearchNode.board.neighbors())
+                {
+                    if (tpsn != null && tpsn.board.equals(b)) continue;
+                    twinPq.insert(new GameTreeNode(twinSearchNode, b));
+                }
+                
+                twinSearchNode = twinPq.delMin();
+            }
         }
     }
     
-    private Queue<Board> findBestPath(Board initial)
+    private Stack<Board> makeSolutionBySearchNode(GameTreeNode lastNode)
     {
-        boolean reachGoal = false;
-        Queue<Board> bestPath = new Queue<Board>();
-        
-        MinPQ<GameTreeNode> pq = new MinPQ<GameTreeNode>();
-        int upperLimit = initial.manhattan();
-        
-        GameTreeNode searchNode = new GameTreeNode(null, initial, 0);
-        int i = 0;
-        while (searchNode != null)
+        Stack<Board> tmp = new Stack<Board>();
+        GameTreeNode prevNode = lastNode;
+        while (prevNode != null)
         {
-            Board item = searchNode.board;
-            bestPath.enqueue(item);
-            if (item.isGoal())
-            {
-                reachGoal = true;
-                break;
-            }
-            
-            // if exceed max steps, maybe unsolvable
-            if (i > upperLimit) break;
-            
-            i++;
-            GameTreeNode psn = searchNode.previous;
-            
-            for (Board b : item.neighbors())
-            {
-                if (psn != null && psn.board.equals(b)) continue;
-                pq.insert(new GameTreeNode(searchNode, b, i));
-            }
-            
-            searchNode = pq.delMin();
+            tmp.push(prevNode.board);
+            prevNode = prevNode.previous;
         }
         
-        if (!reachGoal) return null;
-        
-        return bestPath;
+        return tmp;
     }
-    
+
     private class GameTreeNode implements Comparable<GameTreeNode>
     {
         private Board board;
         private int moves;
         private GameTreeNode previous;
         
-        public GameTreeNode(GameTreeNode previous, Board board, int moves)
+        public GameTreeNode(GameTreeNode previous, Board board)
         {
             this.previous = previous;
             this.board = board;
-            this.moves = moves;
+            if (this.previous == null) this.moves = 0;
+            else this.moves = this.previous.moves + 1;
         }
         
         public int priority()
@@ -88,7 +105,7 @@ public class Solver
     // is the initial board solvable?
     public boolean isSolvable()
     {
-        return solvable;
+        return !(solution == null);
     }
     
     // min number of moves to solve initial board; -1 if unsolvable

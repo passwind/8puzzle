@@ -7,27 +7,18 @@ import edu.princeton.cs.algs4.StdRandom;
 public class Board
 {
     private int[][] blocks;
-    private int n = 0;
     private Stack<Board> neighbors;
-    private int blankRow;
-    private int blankCol;
     
     // construct a board from an n-by-n array of blocks
     // (where blocks[i][j] = block in row i, column j)
     public Board(int[][] blocks)
     {
-        n = blocks.length;
+        int n = blocks.length;
         int[][] b = new int[n][n];
-        blankRow = n-1;
-        blankCol = n-1;
+
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
             {
-                if (blocks[i][j] == 0)
-                {
-                    blankRow = i;
-                    blankCol = j;
-                }
                 b[i][j] = blocks[i][j];
             }
         
@@ -48,7 +39,7 @@ public class Board
     // board dimension n
     public int dimension()
     {
-        return n;
+        return this.blocks.length;
     }
     
     // number of blocks out of place
@@ -70,6 +61,7 @@ public class Board
     public int manhattan()
     {
         int total = 0;
+        int n = this.blocks.length;
         
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
@@ -95,6 +87,7 @@ public class Board
     // a board that is obtained by exchanging any pair of blocks
     public Board twin()
     {
+        int n = this.blocks.length;
         int[][] b = new int[n][n];
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
@@ -154,7 +147,9 @@ public class Board
         
         Board that = (Board) y;
         
-        if (that.n != this.n) return false;
+        int n = this.blocks.length;
+        int m = that.blocks.length;
+        if (m != n) return false;
         
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
@@ -168,6 +163,17 @@ public class Board
     {
         if (this.neighbors == null)
         {
+            int n = this.blocks.length;
+            int blankRow = n-1;
+            int blankCol = n-1;
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                    if (this.blocks[i][j] == 0)
+                    {
+                        blankRow = i;
+                        blankCol = j;
+                    }
+            
             this.neighbors = new Stack<Board>();
             // up
             int row = blankRow-1;
@@ -208,6 +214,7 @@ public class Board
     public String toString()
     {
         StringBuilder s = new StringBuilder();
+        int n = this.blocks.length;
         s.append(n + "\n");
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
